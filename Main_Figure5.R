@@ -17,6 +17,7 @@ dRNA_ratio$type <- factor(dRNA_ratio$type,levels = c("BALF","Blood","CSF"))
 p1 <- ggplot(dRNA_ratio,aes(type,ratio))+
   geom_beeswarm(aes(color=sequencing),cex = 1.5)+
   scale_color_manual(values = myfill[c(2,6)])+
+  scale_y_continuous(breaks = c(0,0.2,0.4,0.6,0.8))+
   labs(x='',y='Ratio of Effective reads')+
   theme_bw()+my_theme+theme(axis.text.x = element_text(hjust = 1,vjust = 1,angle = 60))
 
