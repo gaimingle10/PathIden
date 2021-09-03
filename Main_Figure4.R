@@ -1,5 +1,14 @@
-### Main Figure4 #####
+# Started on 2021-4-15
+# UPDATE 2021-8-26
+# Run as follows:
+# Rscript Main_Figure4.R <diff_sequencing_ratio>
 
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) < 1) {
+  stop("A minimum of 1 arguments are mandatory: Rscript Main_Figure4.R <diff_sequencing_ratio>", call.=FALSE)
+}
+
+### Main Figure4 #####
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
@@ -9,8 +18,21 @@ library(openxlsx)
 library(tidyverse)
 library(rstatix)
 
+#set theme for ggplot2
+my_theme <- theme(axis.ticks.length = unit(0.4,"lines"), 
+                  axis.ticks = element_line(color='black'),
+                  axis.line = element_line(colour = "black"), 
+                  panel.grid.major = element_blank(),
+                  panel.grid.minor = element_blank(),
+                  axis.title = element_text(colour = 'black',size=10,face="bold"),
+                  axis.text.y=element_text(colour='black',size=10,face = "bold"),
+                  axis.text.x=element_text(colour='black',size=10,face = "bold"),
+                  plot.title=element_text(hjust = 0.5))
 
-diff_ratio <- readxl::read_excel('data/diff_sequencing_ratio.xlsx',sheet = 1)
+
+myfill = brewer.pal(12,"Paired")
+diff_sequencing_ratio <- as.character(args[1])
+diff_ratio <- read.xlsx(diff_sequencing_ratio,sheet = 1)
 diff_ratio_cor <- diff_ratio
 
 names(diff_ratio_cor)[c(4,5)] <- c("23s_rRNA","MetaPhlAn")
@@ -37,7 +59,9 @@ stat.test <- diff_ratio_cor.melt %>%
 stat.test <- stat.test %>%
   add_xy_position(x = "database", dodge = 0.8,step.increase = 0.04)
 
-bxp <- ggboxplot(
+pdf("Figure4.pdf",height = 6,width = 8)
+
+ggboxplot(
   diff_ratio_cor.melt, x = "database", y = "value", color = "sequencing",
   add = "jitter",facet.by = "sample_type",xlab = "",ylab = "Log10(ratio of reads number)")+
   scale_color_manual(name="Detection method",values = myfill[c(4,6,2)])+
@@ -48,4 +72,7 @@ bxp +
     stat.test, label = "p.adj.signif", tip.length = 0,
     bracket.nudge.y= -0.05,hide.ns = FALSE
   )
+
+dev.off()
+print("Done")
 
